@@ -78,6 +78,13 @@ class Main2Activity : AppCompatActivity() {
         Log.d("++zz++", file.isFile.toString())
         Log.d("++zz++", readFileUsingGetResource(id.toString()).toString())
 
+//        launch {
+//            val contents = withContext(Dispatchers.IO) {
+//                FileInputStream("filename.txt").use { it.readBytes() }
+//            }
+//            processContents(contents)
+//        }
+
 
 //        var reader = FileReader(file)
 //        reader.read()
@@ -117,7 +124,7 @@ class Main2Activity : AppCompatActivity() {
     }
 
     fun readFileUsingGetResource(fileName: String)
-            = this::class.java.getResource(fileName)?.readText(Charsets.UTF_8)
+            = this::class.java.getResource(fileName)?.openStream()
 
 //    external class JSZip {
 //        fun file(name: String): Promise<ZipObject>
