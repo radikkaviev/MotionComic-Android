@@ -1,29 +1,42 @@
 package com.pickfilename
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
+import android.view.View
+import android.webkit.WebChromeClient
 import android.webkit.WebView
-import java.io.BufferedReader
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileReader
-import java.io.InputStreamReader
-import java.util.zip.ZipFile
+import java.util.*
+import java.util.zip.ZipInputStream
 
 
 class Main2Activity : AppCompatActivity() {
-
-
-
 
     private lateinit var webView: WebView
     lateinit var bmp : Bitmap
     lateinit var canvas: Canvas
     lateinit var paint: Paint
     lateinit var path: Path
+    private val SDPath = Environment.getExternalStorageDirectory().absolutePath
+    private val SDPath1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    private val zipPath = "$SDPath/Downloads/"
+    private val unzipPath = "$SDPath1/"
+    private val dataPath = "$SDPath/AndroidCodility/zipunzipFile/data/"
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
@@ -32,6 +45,7 @@ class Main2Activity : AppCompatActivity() {
         val id = bundle?.get("name")
         val language = bundle?.get("location")
         Log.d("++++++",language.toString())
+        Log.d("++++++",Environment.getExternalStorageDirectory().absolutePath)
         //findViewById<TextView>(R.id.fileName).text = "Name: " + id +"\n \nPath: "+language
 
         //this.contentResolver.openInputStream(MainActivity.abc)?.reader()?.readText()
@@ -45,7 +59,13 @@ class Main2Activity : AppCompatActivity() {
 //        webViewSettings.allowUniversalAccessFromFileURLs
 //        webView.settings.javaScriptEnabled
 //        webView.webChromeClient = object : WebChromeClient() {}
-//        webView.loadUrl("file:///android_asset/index.html")
+
+
+        val lFile = File(unzipPath+ "STK.data")
+        lFile.setExecutable(true)
+        Log.d("+++size+++",lFile.canExecute().toString())
+        readFileUsingGetResource(lFile.name)
+        //webView.loadUrl("file:///" + lFile.absolutePath)
 
 //        try {
 //            val inputStream: InputStream = assets.open("STK.data")
@@ -65,7 +85,7 @@ class Main2Activity : AppCompatActivity() {
 //        }
 
         //Log.d("++++++",MainActivity.abc.toString())
-        //Glide.with(this).asGif().load(MainActivity.abc).into(findViewById(R.id.imageView));
+        //Glide.with(this).asGif().load(lFile).into(findViewById(R.id.imageView));
         //Glide.with(this).asBitmap().load(R.drawable.ic_launcher_background).into(R.id.imageView)
         //Glide.with(this).load("file:///android_asset/STK.data").into(findViewById(R.id.imageView))
 
@@ -104,8 +124,60 @@ class Main2Activity : AppCompatActivity() {
 //        Log.d("++zz++", zip.size().toString())
 
 
+//        var zipManager = ZipFile(id.toString())
+//        zipManager.getEntry("resource")
+//        Log.d("+++++","resource"+zipManager.getEntry("resource"))
 
 
+//        ProcessBuilder()
+//            .command("unzip", unzipPath+ "STK.data")
+//            .redirectError(ProcessBuilder.Redirect.INHERIT)
+//            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+//            .start()
+//            .waitFor()
+//
+//        var fileReader : FileReader
+
+//
+//        ZipFile(unzipPath+ "STK.data").use { zip ->
+//            zip.entries().asSequence().forEach { entry ->
+//                zip.getInputStream(entry).use { input ->
+//                    File(entry.name).outputStream().use { output ->
+//                        input.copyTo(output)
+//                    }
+//                }
+//            }
+//        }
+
+        //Check for permission
+        Utility().checkPermission(this)
+        unZipView(unzipPath+ "STK.data")
+
+
+
+    }
+
+    fun zipView(view: View) {
+        if (FileHelper.zip(dataPath, zipPath, "dummy.zip", true)) {
+            Toast.makeText(applicationContext, "Zip successfully.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun unZipView(toString: String) {
+
+        var zipInputStream : ZipInputStream = ZipInputStream(BufferedInputStream(FileInputStream(toString)))
+        Log.d("++zipInputStream++",zipInputStream.toString())
+        zipInputStream.getNextEntry();
+
+        var sc = Scanner(zipInputStream);
+        while (sc.hasNextLine()) {
+            System.out.println(sc.nextLine());
+            Log.d("++++", sc.nextLine())
+        }
+
+        if (FileHelper.unzip( toString, unzipPath)) {
+            Toast.makeText(applicationContext, "Unzip successfully.", Toast.LENGTH_LONG).show()
+        }
     }
 
     fun findFolderInfo(file: File) {
