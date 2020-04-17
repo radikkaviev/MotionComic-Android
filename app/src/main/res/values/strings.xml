@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PickFileName</string>
+    <string name="app_name">MotionComic</string>
     <string name="app_pickfilebutton">Open File</string>
     <string name="permission_necessary">Permission Necessary</string>
     <string name="external_storage_permission">External Storage Permission</string>

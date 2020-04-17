@@ -1,4 +1,4 @@
-package com.pickfilename
+package com.comicul_inc_dev_comima
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.pickfilename
+package com.comicul_inc_dev_comima
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -6,16 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
-import android.R.attr.data
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.widget.TextView
 import java.io.File
 
 

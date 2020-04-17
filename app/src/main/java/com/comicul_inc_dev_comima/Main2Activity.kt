@@ -1,4 +1,4 @@
-package com.pickfilename
+package com.comicul_inc_dev_comima
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -9,16 +9,13 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.View
-import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileReader
 import java.util.*
 import java.util.zip.ZipInputStream
 

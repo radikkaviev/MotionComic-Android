@@ -1,4 +1,4 @@
-package com.pickfilename
+package com.comicul_inc_dev_comima
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
