@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
@@ -24,7 +23,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    kotlin {
+        target {
+
+        }
+        sourceSets["main"].dependencies {
+            implementation(kotlin("stdlib-js"))
+
+
+
+        }
+    }
+
 }
+
+
 
 
 
@@ -40,5 +54,10 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.4.0'
     kapt 'com.github.bumptech.glide:compiler:4.4.0'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
+    implementation "com.airbnb.android:lottie:2.6.0"
+// https://mvnrepository.com/artifact/org.jszip.maven/jszip-maven-plugin
+    //implementation group: 'org.jszip.maven', name: 'jszip-maven-plugin', version: '0.1-alpha-4'
+// https://mvnrepository.com/artifact/org.webjars/jszip
+    implementation group: 'org.webjars', name: 'jszip', version: '3.1.0'
 
 }

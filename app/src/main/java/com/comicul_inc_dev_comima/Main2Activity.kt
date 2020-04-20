@@ -1,5 +1,6 @@
 package com.comicul_inc_dev_comima
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -8,15 +9,16 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
-import android.view.View
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
+import com.bumptech.glide.load.model.ModelLoader
+//import org.apache.tools.ant.taskdefs.Zip
+//import org.jszip.maven.JSZipMojo
+import java.io.*
 import java.util.*
+import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 
@@ -29,10 +31,11 @@ class Main2Activity : AppCompatActivity() {
     lateinit var path: Path
     private val SDPath = Environment.getExternalStorageDirectory().absolutePath
     private val SDPath1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-    private val zipPath = "$SDPath/Downloads/"
+//    private val zipPath = "$SDPath/Downloads/"
     private val unzipPath = "$SDPath1/"
-    private val dataPath = "$SDPath/AndroidCodility/zipunzipFile/data/"
+//    private val dataPath = "$SDPath/AndroidCodility/zipunzipFile/data/"
 
+    @SuppressLint("WrongThread")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,11 +61,46 @@ class Main2Activity : AppCompatActivity() {
 //        webView.webChromeClient = object : WebChromeClient() {}
 
 
-        val lFile = File(unzipPath+ "STK.data")
+        val lFile = File(unzipPath+ id.toString())
         lFile.setExecutable(true)
-        Log.d("+++size+++",lFile.canExecute().toString())
+        Log.d("+++size+++",lFile.extension)
         readFileUsingGetResource(lFile.name)
-        //webView.loadUrl("file:///" + lFile.absolutePath)
+
+        
+
+//        var zip = Zip()
+//        zip.setZipfile(lFile)
+//        zip.setFile(lFile)
+//        zip.execute()
+
+
+//        val zip = JSZipMojo()
+//        window.fetch("/kitten-photos.zip")
+//            .then { it.arraĀBuffer() }
+//            .then { zip.loadAsĀnc(it) }
+//            .then { it.file("lucĀ.jpg") }
+//            .then { it.asĀnc("blob") as Promise<Blob> }
+//            .then {
+//                val objectUrl = URL.createObjectURL(it)
+//                val img = document.querĀSelector("#kittenImage")
+//                img as HTMLImageElement
+//                img.src = objectUrl
+//            }
+//        val decodedAnimation = ImageDecoder.decodeDrawable(
+//            // create ImageDecoder.Source object
+//            ImageDecoder.createSource(lFile))
+//// set the drawble as image source of ImageView
+//        findViewById<ImageView>(R.id.imageView).setImageDrawable(decodedAnimation)
+//// play the animation
+//        (decodedAnimation as? AnimatedImageDrawable)?.start()
+//
+//        //webView.loadUrl("file:///" + lFile.absolutePath)
+//
+////        var animationDrawable = AnimationDrawable.createFromPath(unzipPath+ "STK.data")
+////        animationDrawable?.setVisible(true,true)
+//
+//        var animation = Animation.START_ON_FIRST_FRAME
+
 
 //        try {
 //            val inputStream: InputStream = assets.open("STK.data")
@@ -84,16 +122,25 @@ class Main2Activity : AppCompatActivity() {
         //Log.d("++++++",MainActivity.abc.toString())
         //Glide.with(this).asGif().load(lFile).into(findViewById(R.id.imageView));
         //Glide.with(this).asBitmap().load(R.drawable.ic_launcher_background).into(R.id.imageView)
-        //Glide.with(this).load("file:///android_asset/STK.data").into(findViewById(R.id.imageView))
+        //Glide.with(this).load(lFile).into(findViewById<ImageView>(R.id.imageView))
+
+//        findViewById<LottieAnimationView>(R.id.animation_view).addValueCallback(
+//            KeyPath("Shape Layer", "Rectangle", "Fill"),
+//            LottieProperty.COLOR_FILTER) { ColorFilter() }
+
+
 
         //webView.loadData(this.contentResolver.openInputStream(MainActivity.abc)?.reader()?.readText(), ".data", "utf-8")
 
         //findViewById<ImageView>(R.id.imageView).setImageBitmap(BitmapFactory.decodeFile(language.toString()))
 
 
+
         var file = File(language.toString())
         Log.d("++zz++", file.isFile.toString())
         Log.d("++zz++", readFileUsingGetResource(id.toString()).toString())
+
+
 
 //        launch {
 //            val contents = withContext(Dispatchers.IO) {
@@ -148,17 +195,17 @@ class Main2Activity : AppCompatActivity() {
 
         //Check for permission
         Utility().checkPermission(this)
-        unZipView(unzipPath+ "STK.data")
+        unZipView(unzipPath+ id.toString())
 
 
 
     }
 
-    fun zipView(view: View) {
-        if (FileHelper.zip(dataPath, zipPath, "dummy.zip", true)) {
-            Toast.makeText(applicationContext, "Zip successfully.", Toast.LENGTH_LONG).show()
-        }
-    }
+//    fun zipView(view: View) {
+//        if (FileHelper.zip(dataPath, zipPath, "dummy.zip", true)) {
+//            Toast.makeText(applicationContext, "Zip successfully.", Toast.LENGTH_LONG).show()
+//        }
+//    }
 
     fun unZipView(toString: String) {
 
@@ -203,4 +250,25 @@ class Main2Activity : AppCompatActivity() {
 //    external class ZipObject {
 //        fun asĀnc(tĀpe: String): Promise<Any?>
 //    }
+
+    @Throws(IOException::class)
+    private fun loadzip(folder: String, inputStream: InputStream) {
+        val zipIs = ZipInputStream(inputStream)
+        var ze: ZipEntry? = null
+        while (zipIs.nextEntry.also { ze = it } != null) {
+            val fout = FileOutputStream(folder + "/" + ze!!.getName())
+            val buffer = ByteArray(1024)
+            var length = 0
+            while (zipIs.read(buffer).also { length = it } > 0) {
+                fout.write(buffer, 0, length)
+            }
+            zipIs.closeEntry()
+            fout.close()
+        }
+        zipIs.close()
+    }
+
+
 }
+
+

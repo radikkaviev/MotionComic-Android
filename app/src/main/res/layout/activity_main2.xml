@@ -26,12 +26,19 @@
 <!--    <ImageView-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:id="@+id/imageView"-->
-<!--        android:src="@drawable/ic_launcher_background"-->
 <!--        android:layout_height="match_parent">-->
 <!--    </ImageView>-->
 <!--    <pl.droidsonroids.gif.GifImageView-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="match_parent">-->
 <!--    </pl.droidsonroids.gif.GifImageView>-->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animation_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
