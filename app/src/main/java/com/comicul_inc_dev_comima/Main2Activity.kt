@@ -1,28 +1,27 @@
 package com.comicul_inc_dev_comima
 
+//import org.apache.tools.ant.taskdefs.Zip
+//import org.jszip.maven.JSZipMojo
+
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.webkit.WebView
-import android.widget.Toast
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.load.model.ModelLoader
-//import org.apache.tools.ant.taskdefs.Zip
-//import org.jszip.maven.JSZipMojo
 import java.io.*
-import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 
 class Main2Activity : AppCompatActivity() {
+
+    var bitmapsArray : ArrayList<Bitmap> = arrayListOf<Bitmap>()
 
     private lateinit var webView: WebView
     lateinit var bmp : Bitmap
@@ -66,7 +65,15 @@ class Main2Activity : AppCompatActivity() {
         Log.d("+++size+++",lFile.extension)
         readFileUsingGetResource(lFile.name)
 
-        
+//        val zipFile = ZipFile(lFile.name)
+//
+//        val entries: Enumeration<out ZipEntry> = zipFile.entries()
+//
+//        while (entries.hasMoreElements()) {
+//            val entry = entries.nextElement()
+//            val stream: InputStream = zipFile.getInputStream(entry)
+//            Log.d("+++sizeinput+++",stream.toString())
+//        }
 
 //        var zip = Zip()
 //        zip.setZipfile(lFile)
@@ -142,6 +149,7 @@ class Main2Activity : AppCompatActivity() {
 
 
 
+
 //        launch {
 //            val contents = withContext(Dispatchers.IO) {
 //                FileInputStream("filename.txt").use { it.readBytes() }
@@ -209,19 +217,21 @@ class Main2Activity : AppCompatActivity() {
 
     fun unZipView(toString: String) {
 
-        var zipInputStream : ZipInputStream = ZipInputStream(BufferedInputStream(FileInputStream(toString)))
-        Log.d("++zipInputStream++",zipInputStream.toString())
-        zipInputStream.getNextEntry();
+//        var zipInputStream : ZipInputStream = ZipInputStream(BufferedInputStream(FileInputStream(toString)))
+//        Log.d("++zipInputStream++",zipInputStream.toString())
+//        zipInputStream.getNextEntry();
+//
+//        var sc = Scanner(zipInputStream);
+//        while (sc.hasNextLine()) {
+//            System.out.println(sc.nextLine());
+//            Log.d("++++", sc.nextLine())
+//        }
+//
+//        if (FileHelper.unzip( toString, unzipPath)) {
+//            Toast.makeText(applicationContext, "Unzip successfully.", Toast.LENGTH_LONG).show()
+//        }
 
-        var sc = Scanner(zipInputStream);
-        while (sc.hasNextLine()) {
-            System.out.println(sc.nextLine());
-            Log.d("++++", sc.nextLine())
-        }
-
-        if (FileHelper.unzip( toString, unzipPath)) {
-            Toast.makeText(applicationContext, "Unzip successfully.", Toast.LENGTH_LONG).show()
-        }
+        unzip(toString,unzipPath)
     }
 
     fun findFolderInfo(file: File) {
@@ -267,6 +277,102 @@ class Main2Activity : AppCompatActivity() {
         }
         zipIs.close()
     }
+
+
+    fun unzip(sourceFile: String?, destinationFolder: String?): Boolean? {
+        var zis: ZipInputStream? = null
+        try {
+            zis = ZipInputStream(
+                BufferedInputStream(
+                    FileInputStream(sourceFile)
+                )
+            )
+            var ze: ZipEntry
+            var count: Int
+            val buffer = ByteArray(8192)
+            while (zis.nextEntry != null) {
+                ze = zis.nextEntry
+                var fileName = ze.name
+                Log.d("+++fileName+++", fileName)
+
+                fileName = fileName.substring(fileName.indexOf("/") + 1)
+                val file = File(destinationFolder, fileName)
+
+
+                if (fileName.contains("02.png")) {
+
+                    val myBitmap = BitmapFactory.decodeStream(zis)
+                    bitmapsArray.add(myBitmap)
+                    //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+                    FileHelper.ImageViewAnimatedChange(this,findViewById<ImageView>(R.id.imageView),myBitmap)
+                }
+
+                Log.d("+++bitmapsArray+++", bitmapsArray.size.toString())
+                //Glide.with(this).load(""+SDPath1+"/STK.zip/"+"resource/character/01コマ目_01.png").into(findViewById<ImageView>(R.id.imageView))
+//                Glide.with(this)
+//                    .asBitmap()
+//                    .load(""+SDPath1+"/STK.zip/"+"resource/character/01コマ目_01.png")
+//                    .into(findViewById<ImageView>(R.id.imageView))
+//                Glide.with(this).asBitmap().load(""+SDPath1+"/STK.zip/"+"resource/character/01コマ目_01.png").error(android.R.mipmap.sym_def_app_icon).into(findViewById<ImageView>(R.id.imageView));
+//                if (fileName.contains(".") && fileName.split(".").size>0 && fileName.split(".")[1].equals("png")) {
+//                    Glide.with(this).load(fileName).into(findViewById<ImageView>(R.id.imageView))
+//                    findViewById<ImageView>(R.id.imageView).setImageURI(Uri.parse(""+SDPath1+"/STK.zip/"+"puneet.png"))
+//                }
+
+//                val imgFile = File(""+SDPath1+"/STK.zip/"+"resource/character/01コマ目_01.png")
+//
+//                if (imgFile.exists()) {
+//                    val myBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+//                    findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+//                }
+
+                //val bmp = BitmapFactory.decodeFile(file.absolutePath)
+                findViewById<TextView>(R.id.fileName).text = ""+findViewById<TextView>(R.id.fileName).text+""+fileName
+
+                val dir = if (ze.isDirectory) file else file.parentFile
+                if (!dir.isDirectory && !dir.mkdirs()) throw FileNotFoundException("Invalid path: " + dir.absolutePath)
+                if (ze.isDirectory) continue
+                val fout = FileOutputStream(file)
+                Log.d("+++fout+++", fout.toString())
+                try {
+                    while (zis.read(buffer).also { count = it } != -1) fout.write(
+                        buffer,
+                        0,
+                        count
+                    )
+
+                } finally {
+                    fout.close()
+                }
+            }
+        } catch (ioe: IOException) {
+            Log.d("++++++", ioe.message)
+            return false
+        } finally {
+            if (zis != null) try {
+                zis.close()
+            } catch (e: IOException) {
+            }
+        }
+
+        return true
+    }
+
+
+    fun delayedImageView()
+    {
+        if (bitmapsArray.size>0)
+        {
+            for (value in bitmapsArray)
+            {
+                Log.d("++++++", value.toString())
+                findViewById<ImageView>(R.id.imageView).setImageBitmap(value)
+            }
+
+            Thread.sleep(2000)
+        }
+    }
+
 
 
 }
