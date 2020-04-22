@@ -5,15 +5,15 @@ package com.comicul_inc_dev_comima
 
 import android.annotation.SuppressLint
 import android.graphics.*
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
+import android.graphics.drawable.AnimationDrawable
+import android.os.*
 import android.util.Log
+import android.view.animation.AnimationUtils
 import android.webkit.WebView
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.cunoraz.loadingimages.LoadingImagesView
 import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -22,6 +22,7 @@ import java.util.zip.ZipInputStream
 class Main2Activity : AppCompatActivity() {
 
     var bitmapsArray : ArrayList<Bitmap> = arrayListOf<Bitmap>()
+    var animationDrawable = AnimationDrawable()
 
     private lateinit var webView: WebView
     lateinit var bmp : Bitmap
@@ -232,6 +233,12 @@ class Main2Activity : AppCompatActivity() {
 //        }
 
         unzip(toString,unzipPath)
+        //findViewById<ImageView>(R.id.imageView).setBackgroundDrawable(animationDrawable)
+        //val msg = Message()
+        //startAnimation.sendMessage(msg)
+//        var imageViewWithAnimation = ImageViewWithAnimation(this,bitmapsArray)
+//        imageViewWithAnimation.launchAnimation()
+
     }
 
     fun findFolderInfo(file: File) {
@@ -303,8 +310,13 @@ class Main2Activity : AppCompatActivity() {
 
                     val myBitmap = BitmapFactory.decodeStream(zis)
                     bitmapsArray.add(myBitmap)
+
+                    var b = drawMultipleBitmapsOnImageView(myBitmap)
+                    findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+                    //var frame : Drawable = BitmapDrawable(myBitmap)
+                    //animationDrawable.addFrame(frame,250)
                     //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
-                    FileHelper.ImageViewAnimatedChange(this,findViewById<ImageView>(R.id.imageView),myBitmap)
+                    //FileHelper.ImageViewAnimatedChange(this,findViewById<ImageView>(R.id.imageView),myBitmap)
                 }
 
                 Log.d("+++bitmapsArray+++", bitmapsArray.size.toString())
@@ -327,7 +339,7 @@ class Main2Activity : AppCompatActivity() {
 //                }
 
                 //val bmp = BitmapFactory.decodeFile(file.absolutePath)
-                findViewById<TextView>(R.id.fileName).text = ""+findViewById<TextView>(R.id.fileName).text+""+fileName
+                //findViewById<TextView>(R.id.fileName).text = ""+findViewById<TextView>(R.id.fileName).text+""+fileName
 
                 val dir = if (ze.isDirectory) file else file.parentFile
                 if (!dir.isDirectory && !dir.mkdirs()) throw FileNotFoundException("Invalid path: " + dir.absolutePath)
@@ -373,6 +385,29 @@ class Main2Activity : AppCompatActivity() {
         }
     }
 
+
+    var startAnimation: Handler = object : Handler() {
+        override fun handleMessage(msg: Message?) {
+            super.handleMessage(msg)
+            animationDrawable.start()
+        }
+    }
+
+    fun drawMultipleBitmapsOnImageView(b: Bitmap?): Bitmap? {
+        var drawnBitmap: Bitmap? = null
+        try {
+            drawnBitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(drawnBitmap)
+            // JUST CHANGE TO DIFFERENT Bitmaps and coordinates .
+//            canvas.drawBitmap(b, 100, 100, null)
+//            canvas.drawBitmap(b, 200, 300, null)
+//            canvas.drawBitmap(b, 100, 200, null)
+//            canvas.drawBitmap(b, 300, 350, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return drawnBitmap
+    }
 
 
 }

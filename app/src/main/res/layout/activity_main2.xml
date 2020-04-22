@@ -32,9 +32,11 @@
     <ImageView
         android:layout_width="match_parent"
         android:id="@+id/imageView"
+
         android:src="@android:color/background_dark"
         android:layout_height="match_parent">
     </ImageView>
+
 <!--    <pl.droidsonroids.gif.GifImageView-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="match_parent">-->
