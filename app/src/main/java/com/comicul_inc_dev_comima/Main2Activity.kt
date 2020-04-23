@@ -8,18 +8,24 @@ import android.graphics.*
 import android.graphics.drawable.AnimationDrawable
 import android.os.*
 import android.util.Log
-import android.view.animation.AnimationUtils
 import android.webkit.WebView
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.cunoraz.loadingimages.LoadingImagesView
 import java.io.*
+import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 
 class Main2Activity : AppCompatActivity() {
+
+//    private var _imagView: ImageView? = null
+//    private var _timer: Timer? = null
+//    private var _index = 0
+//    private var handler: MyHandler? = null
+
+    private var timer: CountDownTimer? = null
 
     var bitmapsArray : ArrayList<Bitmap> = arrayListOf<Bitmap>()
     var animationDrawable = AnimationDrawable()
@@ -206,7 +212,21 @@ class Main2Activity : AppCompatActivity() {
         Utility().checkPermission(this)
         unZipView(unzipPath+ id.toString())
 
+        bitmapsArray.reverse()
+        Log.d("++++bitmap size++++",bitmapsArray.size.toString())
+        Log.d("++++bitmap size++++",bitmapsArray.get(0).toString())
 
+        timer = object : CountDownTimer(2000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {}
+            override fun onFinish() {
+                try {
+                    findViewById<ImageView>(R.id.imageView).setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+                    yourMethod()
+                } catch (e: java.lang.Exception) {
+                    Log.e("Error", "Error: $e")
+                }
+            }
+        }.start()
 
     }
 
@@ -233,6 +253,12 @@ class Main2Activity : AppCompatActivity() {
 //        }
 
         unzip(toString,unzipPath)
+//        handler = MyHandler()
+//        _imagView = findViewById<ImageView>(R.id.imageView)
+//
+//        _index = 0
+//        _timer = Timer()
+//        _timer.schedule(TickClass(), 500, 200)
         //findViewById<ImageView>(R.id.imageView).setBackgroundDrawable(animationDrawable)
         //val msg = Message()
         //startAnimation.sendMessage(msg)
@@ -306,7 +332,7 @@ class Main2Activity : AppCompatActivity() {
                 val file = File(destinationFolder, fileName)
 
 
-                if (fileName.contains("02.png")) {
+                if (fileName.contains(".png")) {
 
                     val myBitmap = BitmapFactory.decodeStream(zis)
                     bitmapsArray.add(myBitmap)
@@ -409,7 +435,36 @@ class Main2Activity : AppCompatActivity() {
         return drawnBitmap
     }
 
+//    private class TickClass : TimerTask() {
+//        fun run() {
+//            handler.sendEmptyMessage(_index)
+//            _index++
+//
+//        }
+//    }
 
+//    private class MyHandler : Handler() {
+//        override fun handleMessage(msg: Message?) {
+//
+//            super.handleMessage(msg)
+//            try {
+//                val bmp = BitmapFactory.decodeStream(this@MainActivity.getAssets().open("drum_$_index.png"))
+//                _imagView.setImageBitmap(bmp)
+//                Log.v("Loaing Image: ", _index.toString() + "")
+//            } catch (e: IOException) {
+//                // TODO Auto-generated catch block
+//                Log.v("Exception in Handler ", e.getMessage())
+//            }
+//        }
+//    }
+
+    fun yourMethod() {
+        //do what you want
+        if (bitmapsArray.size>=1) {
+            bitmapsArray.removeAt(bitmapsArray.size - 1)
+            timer!!.start()
+        }
+    }
 }
 
 
