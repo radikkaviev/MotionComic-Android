@@ -4,8 +4,10 @@ package com.comicul_inc_dev_comima
 //import org.jszip.maven.JSZipMojo
 
 import android.annotation.SuppressLint
+import android.content.res.AssetFileDescriptor
 import android.graphics.*
 import android.graphics.drawable.AnimationDrawable
+import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
 import android.webkit.WebView
@@ -343,6 +345,37 @@ class Main2Activity : AppCompatActivity() {
                     //animationDrawable.addFrame(frame,250)
                     //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
                     //FileHelper.ImageViewAnimatedChange(this,findViewById<ImageView>(R.id.imageView),myBitmap)
+                }
+
+                if (fileName.contains(".mp3") && fileName.contains("se_2600_"))
+                {
+                    Log.d("+++fileName mp3+++", ""+SDPath1+"/STK.zip/"+fileName)
+                    Log.d("+++fileName mp3+++", file.absolutePath)
+                    val player = MediaPlayer()
+
+                    try {
+                        player.setDataSource(file.absolutePath)
+                        player.prepare()
+                    } catch (e: IllegalArgumentException) {
+                        Log.d("+++fileName mp3+++", e.toString())
+                        e.printStackTrace()
+                    } catch (e: java.lang.Exception) {
+                        println("Exception of type : $e")
+                        Log.d("+++fileName mp3+++", e.toString())
+                        e.printStackTrace()
+                    }
+//
+                    player.start()
+//                    val expansionFile = ZipResourceFile("myZipFile.zip")
+//                    val assetFileDescriptor: AssetFileDescriptor =
+//                        expansionFile.getAssetFileDescriptor("myMusic.mp3")
+//                    try {
+//                        mediaPlayer.setDataSource(assetFileDescriptor.fileDescriptor)
+//                        mediaPlayer.prepare()
+//                        mediaPlayer.start()
+//                    } catch (e: IOException) {
+//                        // Handle exception
+//                    }
                 }
 
                 Log.d("+++bitmapsArray+++", bitmapsArray.size.toString())
