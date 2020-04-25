@@ -18,9 +18,12 @@ import java.io.*
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import kotlin.collections.ArrayList
 
 
 class Main2Activity : AppCompatActivity() {
+
+    var player = MediaPlayer()
 
 //    private var _imagView: ImageView? = null
 //    private var _timer: Timer? = null
@@ -30,6 +33,7 @@ class Main2Activity : AppCompatActivity() {
     private var timer: CountDownTimer? = null
 
     var bitmapsArray : ArrayList<Bitmap> = arrayListOf<Bitmap>()
+    var fileNameString : ArrayList<String> = arrayListOf()
     var animationDrawable = AnimationDrawable()
 
     private lateinit var webView: WebView
@@ -42,6 +46,7 @@ class Main2Activity : AppCompatActivity() {
 //    private val zipPath = "$SDPath/Downloads/"
     private val unzipPath = "$SDPath1/"
 //    private val dataPath = "$SDPath/AndroidCodility/zipunzipFile/data/"
+    var count:Int = 0
 
     @SuppressLint("WrongThread")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -230,7 +235,90 @@ class Main2Activity : AppCompatActivity() {
             }
         }.start()
 
+        if (fileNameString.size > 0) {
+            try {
+                player.setDataSource(fileNameString.get(count))
+                Log.d("+++fileName mp30+++", fileNameString.get(0))
+                player.prepare()
+            } catch (e: IllegalArgumentException) {
+                Log.d("+++fileName mp3+++", e.toString())
+                e.printStackTrace()
+            } catch (e: java.lang.Exception) {
+                println("Exception of type : $e")
+                Log.d("+++fileName mp3+++", e.toString())
+                e.printStackTrace()
+            }
+//
+            player.start()
+        }
+
+        //playerFunction()
+
+
+        player.setOnCompletionListener {
+            count++
+            it.stop()
+            it.reset()
+            if (fileNameString.size>=count) {
+                it.setDataSource(fileNameString.get(count))
+                it.prepare()
+                it.start()
+            }
+            else
+            {
+                it.stop()
+            }
+            //playerFunction()
+
+//            if (fileNameString.size>=count) {
+//                try {
+//                    player = MediaPlayer()
+//                    Log.d("+++fileName mp3+++", fileNameString.get(count))
+//                    player.setDataSource(fileNameString.get(count))
+//                    player.prepare()
+//                } catch (e: IllegalArgumentException) {
+//                    Log.d("+++fileName mp3+++", e.toString())
+//                    e.printStackTrace()
+//                } catch (e: java.lang.Exception) {
+//                    println("Exception of type : $e")
+//                    Log.d("+++fileName mp3+++", e.toString())
+//                    e.printStackTrace()
+//                }
+////
+//                player.start()
+//                player.setOnCompletionListener {
+//                    count++
+//                    it.stop()
+//
+//                    if (fileNameString.size >= count) {
+//                        try {
+//                            player = MediaPlayer()
+//                            Log.d("+++fileName mp3+++", fileNameString.get(count))
+//                            player.setDataSource(fileNameString.get(count))
+//                            player.prepare()
+//                        } catch (e: IllegalArgumentException) {
+//                            Log.d("+++fileName mp3+++", e.toString())
+//                            e.printStackTrace()
+//                        } catch (e: java.lang.Exception) {
+//                            println("Exception of type : $e")
+//                            Log.d("+++fileName mp3+++", e.toString())
+//                            e.printStackTrace()
+//                        }
+////
+//                        player.start()
+//
+//                    }
+//
+//                }
+
+//            }
+//            else
+//            {
+//                player.stop()
+//            }
+        }
     }
+
 
 //    fun zipView(view: View) {
 //        if (FileHelper.zip(dataPath, zipPath, "dummy.zip", true)) {
@@ -334,38 +422,40 @@ class Main2Activity : AppCompatActivity() {
                 val file = File(destinationFolder, fileName)
 
 
-                if (fileName.contains(".png")) {
+                if (fileName.contains(".png") || fileName.contains(".jpg")) {
 
                     val myBitmap = BitmapFactory.decodeStream(zis)
                     bitmapsArray.add(myBitmap)
 
                     var b = drawMultipleBitmapsOnImageView(myBitmap)
-                    findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+                    //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
                     //var frame : Drawable = BitmapDrawable(myBitmap)
                     //animationDrawable.addFrame(frame,250)
                     //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
                     //FileHelper.ImageViewAnimatedChange(this,findViewById<ImageView>(R.id.imageView),myBitmap)
                 }
 
-                if (fileName.contains(".mp3") && fileName.contains("se_2600_"))
+                if (fileName.contains(".mp3") || fileName.contains(".ogg"))
                 {
                     Log.d("+++fileName mp3+++", ""+SDPath1+"/STK.zip/"+fileName)
                     Log.d("+++fileName mp3+++", file.absolutePath)
-                    val player = MediaPlayer()
-
-                    try {
-                        player.setDataSource(file.absolutePath)
-                        player.prepare()
-                    } catch (e: IllegalArgumentException) {
-                        Log.d("+++fileName mp3+++", e.toString())
-                        e.printStackTrace()
-                    } catch (e: java.lang.Exception) {
-                        println("Exception of type : $e")
-                        Log.d("+++fileName mp3+++", e.toString())
-                        e.printStackTrace()
-                    }
+                    fileNameString.add(file.absolutePath)
+                    Log.d("+++ fileNameString +++", fileNameString.size.toString())
+//                    val player = MediaPlayer()
 //
-                    player.start()
+//                    try {
+//                        player.setDataSource(file.absolutePath)
+//                        player.prepare()
+//                    } catch (e: IllegalArgumentException) {
+//                        Log.d("+++fileName mp3+++", e.toString())
+//                        e.printStackTrace()
+//                    } catch (e: java.lang.Exception) {
+//                        println("Exception of type : $e")
+//                        Log.d("+++fileName mp3+++", e.toString())
+//                        e.printStackTrace()
+//                    }
+////
+//                    player.start()
 //                    val expansionFile = ZipResourceFile("myZipFile.zip")
 //                    val assetFileDescriptor: AssetFileDescriptor =
 //                        expansionFile.getAssetFileDescriptor("myMusic.mp3")
@@ -496,6 +586,33 @@ class Main2Activity : AppCompatActivity() {
         if (bitmapsArray.size>=1) {
             bitmapsArray.removeAt(bitmapsArray.size - 1)
             timer!!.start()
+        }
+    }
+
+    fun playerFunction (){
+
+        if (fileNameString.size>=count) {
+
+            if (fileNameString.size > 0) {
+                try {
+                    player.setDataSource(fileNameString.get(count))
+                    Log.d("+++fileName mp30+++", fileNameString.get(0))
+                    player.prepare()
+                } catch (e: IllegalArgumentException) {
+                    Log.d("+++fileName mp3+++", e.toString())
+                    e.printStackTrace()
+                } catch (e: java.lang.Exception) {
+                    println("Exception of type : $e")
+                    Log.d("+++fileName mp3+++", e.toString())
+                    e.printStackTrace()
+                }
+//
+                player.start()
+            }
+        }
+        else
+        {
+            player.stop()
         }
     }
 }
