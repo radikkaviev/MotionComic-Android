@@ -4,7 +4,6 @@ package com.comicul_inc_dev_comima
 //import org.jszip.maven.JSZipMojo
 
 import android.annotation.SuppressLint
-import android.content.res.AssetFileDescriptor
 import android.graphics.*
 import android.graphics.drawable.AnimationDrawable
 import android.media.MediaPlayer
@@ -12,18 +11,19 @@ import android.os.*
 import android.util.Log
 import android.webkit.WebView
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import java.io.*
-import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
-import kotlin.collections.ArrayList
 
 
 class Main2Activity : AppCompatActivity() {
 
     var player = MediaPlayer()
+    var ssk = ""
+    var sc = ""
 
 //    private var _imagView: ImageView? = null
 //    private var _timer: Timer? = null
@@ -221,7 +221,7 @@ class Main2Activity : AppCompatActivity() {
 
         bitmapsArray.reverse()
         Log.d("++++bitmap size++++",bitmapsArray.size.toString())
-        Log.d("++++bitmap size++++",bitmapsArray.get(0).toString())
+        //Log.d("++++bitmap size++++",bitmapsArray.get(0).toString())
 
         timer = object : CountDownTimer(2000, 1000) {
             override fun onTick(millisUntilFinished: Long) {}
@@ -317,6 +317,9 @@ class Main2Activity : AppCompatActivity() {
 //                player.stop()
 //            }
         }
+
+        Toast.makeText(this,ssk,Toast.LENGTH_LONG).show()
+        Toast.makeText(this,sc,Toast.LENGTH_LONG).show()
     }
 
 
@@ -413,13 +416,15 @@ class Main2Activity : AppCompatActivity() {
             var ze: ZipEntry
             var count: Int
             val buffer = ByteArray(8192)
+            //val buffer = ByteArray(100000000)
             while (zis.nextEntry != null) {
                 ze = zis.nextEntry
                 var fileName = ze.name
                 Log.d("+++fileName+++", fileName)
 
-                fileName = fileName.substring(fileName.indexOf("/") + 1)
-                val file = File(destinationFolder, fileName)
+                    fileName = fileName.substring(fileName.indexOf("/") + 1)
+                    val file = File(destinationFolder, fileName)
+
 
 
                 if (fileName.contains(".png") || fileName.contains(".jpg")) {
@@ -467,6 +472,40 @@ class Main2Activity : AppCompatActivity() {
 //                        // Handle exception
 //                    }
                 }
+
+                if (fileName.contains(".ssk"))
+                {
+                    Log.d("++sskfile+++",fileName.reader().readText())
+                    val bufferedReader = BufferedReader(FileReader(file.absolutePath))
+                    var read: String?
+                    val builder = StringBuilder("")
+
+                    while (bufferedReader.readLine().also { read = it } != null) {
+                        builder.append(read)
+                    }
+                    Log.d("++sskfile+++", builder.toString())
+                    ssk = builder.toString()
+                    //Toast.makeText(this,builder.toString(),Toast.LENGTH_SHORT).show()
+                    bufferedReader.close()
+                }
+
+                if (fileName.contains(".sc"))
+                {
+                    Log.d("++scfile+++",fileName.reader().readText())
+                    val bufferedReader = BufferedReader(FileReader(file.absolutePath))
+                    var read: String?
+                    val builder = StringBuilder("")
+
+                    while (bufferedReader.readLine().also { read = it } != null) {
+                        builder.append(read)
+                    }
+                    Log.d("++scfile+++", builder.toString())
+                    sc = builder.toString()
+                    //Toast.makeText(this,builder.toString(),Toast.LENGTH_SHORT).show()
+                    bufferedReader.close()
+                }
+
+
 
                 Log.d("+++bitmapsArray+++", bitmapsArray.size.toString())
                 //Glide.with(this).load(""+SDPath1+"/STK.zip/"+"resource/character/01コマ目_01.png").into(findViewById<ImageView>(R.id.imageView))
@@ -615,6 +654,8 @@ class Main2Activity : AppCompatActivity() {
             player.stop()
         }
     }
+
+
 }
 
 
