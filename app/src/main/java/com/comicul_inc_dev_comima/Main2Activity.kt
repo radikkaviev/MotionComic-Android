@@ -9,17 +9,23 @@ import android.graphics.drawable.AnimationDrawable
 import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
+import android.view.animation.Animation
+import android.view.animation.TranslateAnimation
 import android.webkit.WebView
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import org.json.JSONObject
 import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 
 class Main2Activity : AppCompatActivity() {
+
+    val mapValue = LinkedHashMap<String,JSONObject>()
+    val mapValueImages = LinkedHashMap<String,JSONObject>()
 
     var player = MediaPlayer()
     var ssk = ""
@@ -47,6 +53,9 @@ class Main2Activity : AppCompatActivity() {
     private val unzipPath = "$SDPath1/"
 //    private val dataPath = "$SDPath/AndroidCodility/zipunzipFile/data/"
     var count:Int = 0
+//    val context : Context = applicationContext
+    var bitmapHashMap = HashMap<String,Bitmap>()
+    lateinit var file2 : File
 
     @SuppressLint("WrongThread")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -54,11 +63,13 @@ class Main2Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
 
+        mapValue.clear()
+
         val bundle: Bundle? = intent.extras
         val id = bundle?.get("name")
         val language = bundle?.get("location")
-        Log.d("++++++",language.toString())
-        Log.d("++++++",Environment.getExternalStorageDirectory().absolutePath)
+        Log.d("+++language+++",language.toString())
+        Log.d("+++name+++",id.toString())
         //findViewById<TextView>(R.id.fileName).text = "Name: " + id +"\n \nPath: "+language
 
         //this.contentResolver.openInputStream(MainActivity.abc)?.reader()?.readText()
@@ -74,9 +85,20 @@ class Main2Activity : AppCompatActivity() {
 //        webView.webChromeClient = object : WebChromeClient() {}
 
 
-        val lFile = File(unzipPath+ id.toString())
+        //val lFile = File(unzipPath+ id.toString())
+        val lFile = File(language.toString())
+        val dataFile = File(language.toString(),id.toString()+".zip")
+
+        val index = lFile.name.lastIndexOf(".")
+        val ext = lFile.name.substring(index)
+
+        val name: String = lFile.name.substring(0, index)
+                //use file.renameTo() to rename the file
+                //use file.renameTo() to rename the file
+        file2 = File(lFile.parent+"/"+name+".zip")
+
         lFile.setExecutable(true)
-        Log.d("+++size+++",lFile.extension)
+        Log.d("+++size+++",lFile.parent)
         readFileUsingGetResource(lFile.name)
 
 //        val zipFile = ZipFile(lFile.name)
@@ -217,23 +239,36 @@ class Main2Activity : AppCompatActivity() {
 
         //Check for permission
         Utility().checkPermission(this)
-        unZipView(unzipPath+ id.toString())
+        //unZipView(unzipPath+ id.toString())
+        unZipView(file2.absolutePath)
 
-        bitmapsArray.reverse()
         Log.d("++++bitmap size++++",bitmapsArray.size.toString())
         //Log.d("++++bitmap size++++",bitmapsArray.get(0).toString())
 
-        timer = object : CountDownTimer(2000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {}
-            override fun onFinish() {
-                try {
-                    findViewById<ImageView>(R.id.imageView).setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
-                    yourMethod()
-                } catch (e: java.lang.Exception) {
-                    Log.e("Error", "Error: $e")
-                }
-            }
-        }.start()
+//        timer = object : CountDownTimer(2000, 1000) {
+//            override fun onTick(millisUntilFinished: Long) {}
+//            override fun onFinish() {
+//                try {
+//                    val inFromRight: Animation = TranslateAnimation(
+//                        Animation.RELATIVE_TO_PARENT, +1.0f,
+//                        Animation.RELATIVE_TO_PARENT, 0.0f,
+//                        Animation.RELATIVE_TO_PARENT, 0.0f,
+//                        Animation.RELATIVE_TO_PARENT, 0.0f
+//                    )
+//                    inFromRight.duration = 500
+//                    var imageView = ImageView(this@Main2Activity)
+//                    imageView.startAnimation(inFromRight)
+//                    imageView.setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+//                    findViewById<ConstraintLayout>(R.id.constraintLayout).addView(imageView)
+////                    findViewById<ImageView>(R.id.imageView).setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+////                    findViewById<ImageView>(R.id.imageView).startAnimation(inFromRight)
+//
+//                    yourMethod()
+//                } catch (e: java.lang.Exception) {
+//                    Log.e("Error", "Error: $e")
+//                }
+//            }
+//        }.start()
 
         if (fileNameString.size > 0) {
             try {
@@ -259,7 +294,7 @@ class Main2Activity : AppCompatActivity() {
             count++
             it.stop()
             it.reset()
-            if (fileNameString.size>=count) {
+            if (fileNameString.size>count) {
                 it.setDataSource(fileNameString.get(count))
                 it.prepare()
                 it.start()
@@ -318,9 +353,123 @@ class Main2Activity : AppCompatActivity() {
 //            }
         }
 
-        Toast.makeText(this,ssk,Toast.LENGTH_LONG).show()
-        Toast.makeText(this,sc,Toast.LENGTH_LONG).show()
+        //Toast.makeText(this,ssk,Toast.LENGTH_LONG).show()
+        //Toast.makeText(this,sc,Toast.LENGTH_LONG).show()
+
+
+        var json_sc = JSONObject(sc)
+        //var json_ssk = JSONArray(ssk)
+
+
+        Log.d("+++ jsonsse +++",json_sc.toString())
+        //Log.d("+++ json_ssk +++",json_ssk.toString())
+        val data = json_sc["data"]
+
+        var json_data = JSONObject(data.toString())
+        Log.d("+++json_data+++",json_data.toString())
+
+        val keys: Iterator<String> = json_data.keys()
+        val map = LinkedHashMap<String,JSONObject>()
+        val mapDefaultColor = HashMap<String,DefaultColor>()
+
+
+        while (keys.hasNext()) {
+            val key = keys.next()
+            Log.d("++value+++",json_data.get(key).toString())
+            map.put(key,JSONObject(json_data.get(key).toString()))
+            Log.d("++++key++++",key.toString())
+        }
+
+        Log.d("+++mapsize+++",map.size.toString())
+
+        for (mapValue in map)
+        {
+            Log.d("+++mapVal+++",map.size.toString())
+            Log.d("++++mapValue++++",mapValue.toString())
+        }
+
+       for (mapVal in map)
+       {
+           Log.d("++++mapValuetagName++++",mapVal.value["tagName"].toString())
+           if (mapVal.value["tagName"].equals("defaultColor")) {
+               Log.d("+++ defaultColor +++", mapVal.value.toString())
+               mapValue.put(mapVal.value["tagName"].toString()+mapVal.key,mapVal.value)
+
+           }
+           if (mapVal.value["tagName"].equals("sfade")) {
+               Log.d("+++ sfade +++", mapVal.value.toString())
+               mapValue.put(mapVal.value["tagName"].toString()+mapVal.key, mapVal.value)
+           }
+
+           if (mapVal.value["tagName"].equals("chara_show")) {
+               Log.d("+++ chara_show +++", mapVal.value.toString())
+               mapValue.put(mapVal.value["tagName"].toString()+mapVal.key, mapVal.value)
+               mapValueImages.put(mapVal.value["tagName"].toString()+mapVal.key, mapVal.value)
+           }
+//
+           if (mapVal.value["tagName"].equals("wait")) {
+               Log.d("+++ wait +++", mapVal.value.toString())
+               mapValue.put(mapVal.value["tagName"].toString()+mapVal.key, mapVal.value)
+           }
+//
+           if (mapVal.value["tagName"].equals("playse")) {
+               Log.d("+++ playse +++", mapVal.value.toString())
+               mapValue.put(mapVal.value["tagName"].toString()+mapVal.key, mapVal.value)
+           }
+       }
+
+        Log.d("+++ mapValue +++",mapValue.size.toString())
+        setImageView()
+
+//        for (dataJson in mapValue)
+//        {
+//            Log.d("+++ tagName mapValue+++",dataJson.key)
+//            if (dataJson.key.contains("chara_show"))
+//            {
+//                Log.d("+++ tagName image+++",dataJson.value.get("image").toString())
+//                if (dataJson.value.get("image").toString().length>0)
+//                {
+//                    val anchorXX = JSONObject(dataJson.value.get("image").toString())
+//                    val anchorValue = anchorXX["value"]
+//                    Log.d("+++ anchorValue +++",anchorValue.toString())
+//
+//                }
+//            }
+//            Log.d("+++ tagName mapValue+++",dataJson.value.toString())
+//        }
+//
+//
+//
+//        timer = object : CountDownTimer(2000, 1000) {
+//            override fun onTick(millisUntilFinished: Long) {}
+//            override fun onFinish() {
+//                try {
+//                    val inFromRight: Animation = TranslateAnimation(
+//                        Animation.RELATIVE_TO_PARENT, +1.0f,
+//                        Animation.RELATIVE_TO_PARENT, 0.0f,
+//                        Animation.RELATIVE_TO_PARENT, 0.0f,
+//                        Animation.RELATIVE_TO_PARENT, 0.0f
+//                    )
+//                    inFromRight.duration = 500
+//                    var imageView = ImageView(this@Main2Activity)
+//                    imageView.startAnimation(inFromRight)
+//                    imageView.setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+//                    findViewById<ConstraintLayout>(R.id.constraintLayout).addView(imageView)
+////                    findViewById<ImageView>(R.id.imageView).setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+////                    findViewById<ImageView>(R.id.imageView).startAnimation(inFromRight)
+//
+//                    yourMethod()
+//                } catch (e: java.lang.Exception) {
+//                    Log.e("Error", "Error: $e")
+//                }
+//            }
+//        }.start()
+
+
+        Log.d("+++ jsonsse data +++",json_data.toString())
     }
+
+
 
 
 //    fun zipView(view: View) {
@@ -427,10 +576,11 @@ class Main2Activity : AppCompatActivity() {
 
 
 
-                if (fileName.contains(".png") || fileName.contains(".jpg")) {
+                if (fileName.contains(".png")) {
 
                     val myBitmap = BitmapFactory.decodeStream(zis)
                     bitmapsArray.add(myBitmap)
+                    bitmapHashMap.put(fileName,myBitmap)
 
                     var b = drawMultipleBitmapsOnImageView(myBitmap)
                     //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
@@ -566,7 +716,7 @@ class Main2Activity : AppCompatActivity() {
             for (value in bitmapsArray)
             {
                 Log.d("++++++", value.toString())
-                findViewById<ImageView>(R.id.imageView).setImageBitmap(value)
+                //findViewById<ImageView>(R.id.imageView).setImageBitmap(value)
             }
 
             Thread.sleep(2000)
@@ -624,8 +774,10 @@ class Main2Activity : AppCompatActivity() {
         //do what you want
         if (bitmapsArray.size>=1) {
             bitmapsArray.removeAt(bitmapsArray.size - 1)
-            timer!!.start()
+            //timer!!.start()
+            //Thread.sleep(3000)
         }
+        setImageView()
     }
 
     fun playerFunction (){
@@ -653,6 +805,124 @@ class Main2Activity : AppCompatActivity() {
         {
             player.stop()
         }
+    }
+
+    fun setImageView()
+    {
+
+        if (mapValueImages.size>0) {
+            loop@ for (dataJson in mapValueImages) {
+                Log.d("+++ tagName mapValue+++", dataJson.value.toString())
+                if (dataJson.key.contains("chara_show")) {
+                    Log.d("+++ tagName image+++", dataJson.value.get("image").toString())
+                    if (dataJson.value.get("image").toString().length > 0) {
+                        var anchorXX = JSONObject(dataJson.value.get("anchorX").toString())
+                        var anchorValue = anchorXX["value"].toString()
+                        Log.d("+++ anchorValue +++", anchorValue.toString())
+                        var imageXX = JSONObject(dataJson.value.get("name").toString())
+                        var imageValue = imageXX["value"]
+                        Log.d("+++imageValue+++", imageValue.toString())
+                        var posXX = JSONObject(dataJson.value["posX"].toString())
+                        var posXXValue = posXX["value"].toString()
+                        var posYY = JSONObject(dataJson.value["posY"].toString())
+                        var posYYValue = posYY["value"].toString()
+                        var anchorYY = JSONObject(dataJson.value.get("anchorY").toString())
+                        var anchorYYValue = anchorYY["value"].toString()
+                        var waitXX = JSONObject(dataJson.value["wait"].toString())
+                        var waitXXValue = waitXX["value"]
+                        var timeXX = JSONObject(dataJson.value["time"].toString())
+                        var timeXXValue = timeXX["value"].toString()
+                        if (waitXXValue.equals("0"))
+                        {
+                            waitXXValue = "3000"
+                        }
+                        var scaleXX = JSONObject(dataJson.value["scale"].toString())
+                        var scaleXXValue = scaleXX["value"]
+
+                        timer = object : CountDownTimer(3000, 1000) {
+                            override fun onTick(millisUntilFinished: Long) {}
+                            override fun onFinish() {
+                                try {
+                                    val inFromRight: Animation = TranslateAnimation(
+                                        Animation.START_ON_FIRST_FRAME, posXXValue.toFloat(),
+                                        Animation.START_ON_FIRST_FRAME, anchorValue.toFloat(),
+                                        Animation.START_ON_FIRST_FRAME, 0f,
+                                        Animation.START_ON_FIRST_FRAME, 0f
+                                    )
+                                    inFromRight.duration = 3000
+                                    var imageView = ImageView(this@Main2Activity)
+                                    imageView.startAnimation(inFromRight)
+
+                                    val indexValue = imageValue.toString().lastIndexOf("/")
+                                    val newStringImage = imageValue.toString().substring(indexValue+1)
+                                    Log.d("+++ newStringImage +++","Yes "+imageValue.toString().substring(indexValue+1))
+
+                                    if (newStringImage.equals("01コマ目_01.png"))
+                                    {
+                                        imageView.setImageResource(R.drawable.one)
+                                        findViewById<ConstraintLayout>(R.id.constraintLayout).addView(imageView)
+                                        mapValueImages.remove(dataJson.key)
+                                        yourMethod()
+
+                                    }
+                                    else {
+
+                                        for (imageValue in bitmapHashMap) {
+                                            if (imageValue.key.contains(newStringImage)) {
+                                                Log.d(
+                                                    "+++ yes +++",
+                                                    imageValue.key + " Yes " + newStringImage
+                                                )
+                                                imageView.setImageBitmap(imageValue.value)
+                                                findViewById<ConstraintLayout>(R.id.constraintLayout).addView(
+                                                    imageView
+                                                )
+//                    findViewById<ImageView>(R.id.imageView).setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+//                    findViewById<ImageView>(R.id.imageView).startAnimation(inFromRight)
+                                                mapValueImages.remove(dataJson.key)
+                                                yourMethod()
+                                                bitmapHashMap.remove(imageValue.key)
+                                            }
+//                                        else
+//                                        {
+//                                            Log.d("+++file.absolute+++",file2.path+" name "+newStringImage)
+//                                            val image = File(file2.absolutePath, "/resource/character/"+newStringImage)
+//                                            val bmOptions = BitmapFactory.Options()
+//                                            var bitmap = BitmapFactory.decodeFile(image.absolutePath, bmOptions)
+//                                            imageView.setImageBitmap(bitmap)
+//                                            findViewById<ConstraintLayout>(R.id.constraintLayout).addView(imageView)
+//                                            Log.d("+++ No +++",imageValue.key+" No "+newStringImage)
+//                                            mapValueImages.remove(dataJson.key)
+//                                            yourMethod()
+//                                        }
+                                        }
+                                    }
+
+//                                    imageView.setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+//                                    findViewById<ConstraintLayout>(R.id.constraintLayout).addView(imageView)
+////                    findViewById<ImageView>(R.id.imageView).setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
+////                    findViewById<ImageView>(R.id.imageView).startAnimation(inFromRight)
+//                                    mapValue.remove(dataJson.key)
+//                                    yourMethod()
+                                } catch (e: java.lang.Exception) {
+                                    Log.e("Error", "Error: $e")
+                                }
+                            }
+                        }.start()
+
+                        break@loop
+
+                    }
+                }
+                Log.d("+++ tagName mapValue+++", dataJson.value.toString())
+                //break@loop
+
+            }
+        }
+
+
+
+
     }
 
 

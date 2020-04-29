@@ -1,13 +1,14 @@
 package com.comicul_inc_dev_comima
 
+import android.app.PendingIntent.getActivity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.net.Uri
-import android.provider.OpenableColumns
+import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 
 
@@ -41,12 +42,15 @@ class MainActivity : AppCompatActivity() {
             if (selectedFile != null) {
                 abc = selectedFile
             }
-            Log.d("+++++",selectedFile.toString())
+            val selectedFilePath: String = FileHelper.getPath(this, selectedFile)
+            Log.d("+++selectedFilePath++",selectedFilePath)
             val uri = data?.getData()
             val file = File(uri?.getPath())
+
             file.getName()
 
-            Log.d("+++++",file.getName())
+
+
             //Log.d("++name++",file.listFiles().size.toString())
             data?.data?.let { returnUri ->
                 contentResolver.query(returnUri, null, null, null, null)
@@ -68,10 +72,28 @@ class MainActivity : AppCompatActivity() {
 //                //intent.putExtra("location",uri)
 //                startActivity(intent)
 
+//                val index = cursor.getString(nameIndex).lastIndexOf(".")
+//                Log.d("+++++",index.toString())
+//                //print filename
+//                //System.out.println(file.getName().substring(0, index));
+//                //print extension
+//                //System.out.println(file.getName().substring(index));
+//                //print filename
+//                //System.out.println(file.getName().substring(0, index));
+//                //print extension
+//                //System.out.println(file.getName().substring(index));
+////            val ext = file.name.substring(index)
+//                val name: String = file.getName().substring(0, index)
+//                //use file.renameTo() to rename the file
+//                //use file.renameTo() to rename the file
+//                val file2 = File(file.parent+"/"+name+".zip")
+//
+//                Log.d("++file2+++",file2.getName())
+
                 intent = Intent(applicationContext, Main2Activity::class.java)
                 intent.setAction(Intent.ACTION_VIEW)
                 intent.putExtra("name",cursor.getString(nameIndex))
-                intent.putExtra("location",selectedFile.toString())
+                intent.putExtra("location",selectedFilePath)
                 intent.setDataAndType(selectedFile, "/*")
                 startActivity(intent)
             }
