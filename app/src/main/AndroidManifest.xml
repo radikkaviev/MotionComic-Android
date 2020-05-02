@@ -20,8 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="q">
-        <activity android:name="com.comicul_inc_dev_comima.Main2Activity"></activity>
-        <activity android:name="com.comicul_inc_dev_comima.MainActivity">
+        <activity android:name="com.comicul_inc_dev_comima.ShowAnimation"></activity>
+        <activity android:name="com.comicul_inc_dev_comima.SelectFIle">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -14,16 +14,17 @@ import java.io.File
 
 
 object FileUtils {
-    fun getRealPath(context: Context, fileUri: Uri): String? {
-        val realPath: String?
+
+    fun getRealPath(context: Context?, fileUri: Uri?): String? {
+        val realPath: String
         // SDK < API11
-        realPath = if (Build.VERSION.SDK_INT < 11) {
-            getRealPathFromURI_BelowAPI11(context, fileUri)
+        realPath = (if (Build.VERSION.SDK_INT < 11) {
+            FileUtils.getRealPathFromURI_BelowAPI11(context, fileUri)
         } else if (Build.VERSION.SDK_INT < 19) {
-            getRealPathFromURI_API11to18(context, fileUri)
+            FileUtils.getRealPathFromURI_API11to18(context, fileUri)
         } else {
-            getRealPathFromURI_API19(context, fileUri)
-        }
+            fileUri?.let { FileUtils.getRealPathFromURI_API19(context, it) }
+        })!!
         return realPath
     }
 
@@ -47,12 +48,12 @@ object FileUtils {
     }
 
     fun getRealPathFromURI_BelowAPI11(
-        context: Context,
+        context: Context?,
         contentUri: Uri?
     ): String {
         val proj = arrayOf(MediaStore.Images.Media.DATA)
         val cursor =
-            context.contentResolver.query(contentUri!!, proj, null, null, null)
+            context?.contentResolver?.query(contentUri!!, proj, null, null, null)
         var column_index = 0
         var result = ""
         if (cursor != null) {
@@ -67,7 +68,7 @@ object FileUtils {
 
     @SuppressLint("NewApi")
     fun getRealPathFromURI_API19(
-        context: Context,
+        context: Context?,
         uri: Uri
     ): String? {
         val isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
@@ -108,7 +109,7 @@ object FileUtils {
                     Uri.parse("content://downloads/public_downloads"),
                     java.lang.Long.valueOf(id)
                 )
-                return getDataColumn(context, contentUri, null, null)
+                return context?.let { getDataColumn(it, contentUri, null, null) }
             } else if (isMediaDocument(uri)) {
                 val docId = DocumentsContract.getDocumentId(uri)
                 val split = docId.split(":").toTypedArray()
@@ -125,17 +126,19 @@ object FileUtils {
                 val selectionArgs = arrayOf(
                     split[1]
                 )
-                return getDataColumn(context, contentUri, selection, selectionArgs)
+                return context?.let { getDataColumn(it, contentUri, selection, selectionArgs) }
             }
         } else if ("content".equals(uri.scheme, ignoreCase = true)) {
 
             // Return the remote address
-            return if (isGooglePhotosUri(uri)) uri.lastPathSegment else getDataColumn(
-                context,
-                uri,
-                null,
-                null
-            )
+            return if (isGooglePhotosUri(uri)) uri.lastPathSegment else context?.let {
+                getDataColumn(
+                    it,
+                    uri,
+                    null,
+                    null
+                )
+            }
         } else if ("file".equals(uri.scheme, ignoreCase = true)) {
             return uri.path
         }
@@ -166,13 +169,13 @@ object FileUtils {
         return null
     }
 
-    fun getFilePath(context: Context, uri: Uri?): String? {
+    fun getFilePath(context: Context?, uri: Uri?): String? {
         var cursor: Cursor? = null
         val projection = arrayOf(
             MediaStore.MediaColumns.DISPLAY_NAME
         )
         try {
-            cursor = context.contentResolver.query(
+            cursor = context?.contentResolver?.query(
                 uri!!, projection, null, null,
                 null
             )

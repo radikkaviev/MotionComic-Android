@@ -24,18 +24,6 @@ android {
         }
     }
 
-    kotlin {
-        target {
-
-        }
-        sourceSets["main"].dependencies {
-            implementation(kotlin("stdlib-js"))
-
-
-
-        }
-    }
-
 }
 
 
@@ -53,13 +41,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.github.bumptech.glide:glide:4.4.0'
     kapt 'com.github.bumptech.glide:compiler:4.4.0'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
-    implementation "com.airbnb.android:lottie:2.6.0"
-// https://mvnrepository.com/artifact/org.jszip.maven/jszip-maven-plugin
-    //implementation group: 'org.jszip.maven', name: 'jszip-maven-plugin', version: '0.1-alpha-4'
-// https://mvnrepository.com/artifact/org.webjars/jszip
-    //implementation group: 'org.webjars', name: 'jszip', version: '3.1.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.github.androidbuffer:kotlinfilepicker:v0.0.4-alpha'
-
+    implementation 'com.tapadoo.android:alerter:5.1.2'
 }
