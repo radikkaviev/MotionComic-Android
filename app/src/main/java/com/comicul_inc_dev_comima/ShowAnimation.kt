@@ -1,9 +1,12 @@
 package com.comicul_inc_dev_comima
 
 import android.annotation.SuppressLint
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.MediaPlayer
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
@@ -12,6 +15,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.tapadoo.alerter.Alerter
+import org.apache.commons.io.IOUtils
 import org.json.JSONObject
 import java.io.*
 import java.util.*
@@ -70,6 +74,7 @@ class ShowAnimation : AppCompatActivity() {
             val entry = entries.nextElement()
             val stream: InputStream = zipFile.getInputStream(entry)
             var fileName = entry.name
+            Log.d("+++fileName+++", file2.absolutePath)
             val file = File(file2.absolutePath, fileName)
             if (fileName.contains(".png")) {
 
@@ -81,7 +86,11 @@ class ShowAnimation : AppCompatActivity() {
 
             if (fileName.contains(".mp3") || fileName.contains(".ogg"))
             {
-                fileNameString.add(file.absolutePath)
+
+                val tempFile = File.createTempFile("_AUDIO_", ".wav")
+                val out = FileOutputStream(tempFile)
+                IOUtils.copy(stream,out)
+                fileNameString.add(tempFile.absolutePath)
             }
 
             if (fileName.contains(".ssk"))
@@ -114,39 +123,40 @@ class ShowAnimation : AppCompatActivity() {
 
         // Media player code begins
 
-//        if (fileNameString.size > 0) {
-//            try {
-//                player.setDataSource(fileNameString.get(count))
-//                //player.setDataSource(file2.absolutePath+"/"+fileNameString.get(0))
-//                Log.d("+++fileName mp30+++", fileNameString.get(count))
-//                player.prepare()
-//            } catch (e: IllegalArgumentException) {
-//                Log.d("+++fileName mp3+++", e.toString())
-//                e.printStackTrace()
-//            } catch (e: java.lang.Exception) {
-//                println("Exception of type : $e")
-//                Log.d("+++fileName mp3+++", e.toString())
-//                e.printStackTrace()
-//            }
-//            player.start()
-//        }
-//
-//        player.setOnCompletionListener {
-//            count++
-//            it.stop()
-//            it.reset()
-//            if (fileNameString.size>count) {
-//                Log.d("++filenameString++",fileNameString.get(count))
-//                it.setDataSource(fileNameString.get(count))
-//                //it.setDataSource(file2.absolutePath+"/"+fileNameString.get(count))
-//                it.prepare()
-//                it.start()
-//            }
-//            else
-//            {
-//                it.stop()
-//            }
-//        }
+        if (fileNameString.size > 0) {
+
+            try {
+                player.setDataSource(fileNameString.get(count))
+                //player.setDataSource(file2.absolutePath+"/"+fileNameString.get(0))
+                Log.d("+++fileName mp30+++", fileNameString.get(count))
+                player.prepare()
+            } catch (e: IllegalArgumentException) {
+                Log.d("+++fileName mp3+++", e.toString())
+                e.printStackTrace()
+            } catch (e: java.lang.Exception) {
+                println("Exception of type : $e")
+                Log.d("+++fileName mp3+++", e.toString())
+                e.printStackTrace()
+            }
+            player.start()
+        }
+
+        player.setOnCompletionListener {
+            count++
+            it.stop()
+            it.reset()
+            if (fileNameString.size>count) {
+                Log.d("++filenameString++",fileNameString.get(count))
+                it.setDataSource(fileNameString.get(count))
+                //it.setDataSource(file2.absolutePath+"/"+fileNameString.get(count))
+                it.prepare()
+                it.start()
+            }
+            else
+            {
+                it.stop()
+            }
+        }
 
         // Media player code stops
 

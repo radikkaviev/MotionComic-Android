@@ -42,4 +42,5 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.4.0'
     kapt 'com.github.bumptech.glide:compiler:4.4.0'
     implementation 'com.tapadoo.android:alerter:5.1.2'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 }
