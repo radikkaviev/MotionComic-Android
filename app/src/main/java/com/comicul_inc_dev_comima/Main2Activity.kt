@@ -18,8 +18,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.json.JSONObject
 import java.io.*
+import java.util.*
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
+import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashMap
 
 
 class Main2Activity : AppCompatActivity() {
@@ -95,21 +99,119 @@ class Main2Activity : AppCompatActivity() {
         val name: String = lFile.name.substring(0, index)
                 //use file.renameTo() to rename the file
                 //use file.renameTo() to rename the file
-        file2 = File(lFile.parent+"/"+name+".zip")
+        var file2 = File(lFile.parent+"/"+name+".zip")
+
+        copy(lFile,file2)
 
         lFile.setExecutable(true)
-        Log.d("+++size+++",lFile.parent)
-        readFileUsingGetResource(lFile.name)
+        Log.d("+++size+++",file2.toString())
+//        readFileUsingGetResource(lFile.name)
 
-//        val zipFile = ZipFile(lFile.name)
+        val zipFile = ZipFile(file2.absolutePath)
+
+        val entries: Enumeration<out ZipEntry> = zipFile.entries()
+
+        while (entries.hasMoreElements()) {
+            val entry = entries.nextElement()
+            val stream: InputStream = zipFile.getInputStream(entry)
+            Log.d("+++sizeinput+++",stream.toString())
+            Log.d("+++sizeinput+++",entry.name)
+            var fileName = entry.name
+            Log.d("+++fileName+++", fileName)
+
+            //fileName = fileName.substring(fileName.indexOf("/") + 1)
+            val file = File(file2.absolutePath, fileName)
+
+
+            if (fileName.contains(".png")) {
+
+                val myBitmap = BitmapFactory.decodeStream(stream)
+                bitmapsArray.add(myBitmap)
+                bitmapHashMap.put(fileName,myBitmap)
+
+                var b = drawMultipleBitmapsOnImageView(myBitmap)
+                //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+                //var frame : Drawable = BitmapDrawable(myBitmap)
+                //animationDrawable.addFrame(frame,250)
+                //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+                //FileHelper.ImageViewAnimatedChange(this,findViewById<ImageView>(R.id.imageView),myBitmap)
+            }
+
+            if (fileName.contains(".mp3") || fileName.contains(".ogg"))
+            {
+                Log.d("+++fileName mp3+++", ""+SDPath1+"/STK.zip/"+fileName)
+                Log.d("+++fileName mp3+++", file.absolutePath)
+                fileNameString.add(file.absolutePath)
+                Log.d("+++ fileNameString +++", fileNameString.size.toString())
+//                    val player = MediaPlayer()
 //
-//        val entries: Enumeration<out ZipEntry> = zipFile.entries()
-//
-//        while (entries.hasMoreElements()) {
-//            val entry = entries.nextElement()
-//            val stream: InputStream = zipFile.getInputStream(entry)
-//            Log.d("+++sizeinput+++",stream.toString())
-//        }
+//                    try {
+//                        player.setDataSource(file.absolutePath)
+//                        player.prepare()
+//                    } catch (e: IllegalArgumentException) {
+//                        Log.d("+++fileName mp3+++", e.toString())
+//                        e.printStackTrace()
+//                    } catch (e: java.lang.Exception) {
+//                        println("Exception of type : $e")
+//                        Log.d("+++fileName mp3+++", e.toString())
+//                        e.printStackTrace()
+//                    }
+////
+//                    player.start()
+//                    val expansionFile = ZipResourceFile("myZipFile.zip")
+//                    val assetFileDescriptor: AssetFileDescriptor =
+//                        expansionFile.getAssetFileDescriptor("myMusic.mp3")
+//                    try {
+//                        mediaPlayer.setDataSource(assetFileDescriptor.fileDescriptor)
+//                        mediaPlayer.prepare()
+//                        mediaPlayer.start()
+//                    } catch (e: IOException) {
+//                        // Handle exception
+//                    }
+            }
+
+            if (fileName.contains(".ssk"))
+            {
+                val bytes = ByteArray(entry.size.toInt())
+                var i = 0
+                while (i < bytes.size) {
+                    // .read doesn't always fill the buffer we give it.
+                    // Keep calling it until we get all the bytes for this entry.
+                    i += stream.read(bytes, i, bytes.size - i)
+                }
+//                var file1 = File(file2.absolutePath+"/"+fileName)
+//                var file3 = File(file2.absolutePath+"/"+"main.txt")
+//                copy(file1,file3)
+                var ii = String(bytes)
+                Log.d("++sskfile+++",ii)
+
+                ssk = ii
+            }
+
+            if (fileName.contains(".sc"))
+            {
+                val bytes = ByteArray(entry.size.toInt())
+                var i = 0
+                while (i < bytes.size) {
+                    // .read doesn't always fill the buffer we give it.
+                    // Keep calling it until we get all the bytes for this entry.
+                    i += stream.read(bytes, i, bytes.size - i)
+                }
+//                var file1 = File(file2.absolutePath+"/"+fileName)
+//                var file3 = File(file2.absolutePath+"/"+"main.txt")
+//                copy(file1,file3)
+                var ii = String(bytes)
+                Log.d("++scfile+++",ii)
+
+                sc = ii
+                //Toast.makeText(this,builder.toString(),Toast.LENGTH_SHORT).show()
+
+            }
+
+
+
+            Log.d("+++bitmapsArray+++", bitmapsArray.size.toString())
+        }
 
 //        var zip = Zip()
 //        zip.setZipfile(lFile)
@@ -207,9 +309,11 @@ class Main2Activity : AppCompatActivity() {
 
 
 
-//        var zip = ZipFile(file)
+//        var zip = ZipFile(file2)
 //        zip.size().toString()
 //        Log.d("++zz++", zip.size().toString())
+
+
 
 
 //        var zipManager = ZipFile(id.toString())
@@ -227,11 +331,12 @@ class Main2Activity : AppCompatActivity() {
 //        var fileReader : FileReader
 
 //
-//        ZipFile(unzipPath+ "STK.data").use { zip ->
+//        ZipFile(file2.absoluteFile).use { zip ->
 //            zip.entries().asSequence().forEach { entry ->
 //                zip.getInputStream(entry).use { input ->
 //                    File(entry.name).outputStream().use { output ->
 //                        input.copyTo(output)
+//                        Log.d("+++++ziptry++++",input.copyTo(output).toString())
 //                    }
 //                }
 //            }
@@ -240,8 +345,10 @@ class Main2Activity : AppCompatActivity() {
         //Check for permission
         Utility().checkPermission(this)
         //unZipView(unzipPath+ id.toString())
-        unZipView(file2.absolutePath)
-
+        //unZipView(language.toString())
+        Log.d("++++file2path++++",file2.absolutePath)
+        //unZipView(file2.absolutePath)
+        //unzipp(file2.absolutePath,file2.absolutePath)
         Log.d("++++bitmap size++++",bitmapsArray.size.toString())
         //Log.d("++++bitmap size++++",bitmapsArray.get(0).toString())
 
@@ -270,39 +377,39 @@ class Main2Activity : AppCompatActivity() {
 //            }
 //        }.start()
 
-        if (fileNameString.size > 0) {
-            try {
-                player.setDataSource(fileNameString.get(count))
-                Log.d("+++fileName mp30+++", fileNameString.get(0))
-                player.prepare()
-            } catch (e: IllegalArgumentException) {
-                Log.d("+++fileName mp3+++", e.toString())
-                e.printStackTrace()
-            } catch (e: java.lang.Exception) {
-                println("Exception of type : $e")
-                Log.d("+++fileName mp3+++", e.toString())
-                e.printStackTrace()
-            }
-//
-            player.start()
-        }
+//        if (fileNameString.size > 0) {
+//            try {
+//                player.setDataSource(fileNameString.get(count))
+//                Log.d("+++fileName mp30+++", fileNameString.get(0))
+//                player.prepare()
+//            } catch (e: IllegalArgumentException) {
+//                Log.d("+++fileName mp3+++", e.toString())
+//                e.printStackTrace()
+//            } catch (e: java.lang.Exception) {
+//                println("Exception of type : $e")
+//                Log.d("+++fileName mp3+++", e.toString())
+//                e.printStackTrace()
+//            }
+////
+//            player.start()
+//        }
 
         //playerFunction()
 
 
-        player.setOnCompletionListener {
-            count++
-            it.stop()
-            it.reset()
-            if (fileNameString.size>count) {
-                it.setDataSource(fileNameString.get(count))
-                it.prepare()
-                it.start()
-            }
-            else
-            {
-                it.stop()
-            }
+//        player.setOnCompletionListener {
+//            count++
+//            it.stop()
+//            it.reset()
+//            if (fileNameString.size>count) {
+//                it.setDataSource(fileNameString.get(count))
+//                it.prepare()
+//                it.start()
+//            }
+//            else
+//            {
+//                it.stop()
+//            }
             //playerFunction()
 
 //            if (fileNameString.size>=count) {
@@ -351,11 +458,10 @@ class Main2Activity : AppCompatActivity() {
 //            {
 //                player.stop()
 //            }
-        }
+       // }
 
         //Toast.makeText(this,ssk,Toast.LENGTH_LONG).show()
         //Toast.makeText(this,sc,Toast.LENGTH_LONG).show()
-
 
         var json_sc = JSONObject(sc)
         //var json_ssk = JSONArray(ssk)
@@ -575,7 +681,6 @@ class Main2Activity : AppCompatActivity() {
                     val file = File(destinationFolder, fileName)
 
 
-
                 if (fileName.contains(".png")) {
 
                     val myBitmap = BitmapFactory.decodeStream(zis)
@@ -626,7 +731,7 @@ class Main2Activity : AppCompatActivity() {
                 if (fileName.contains(".ssk"))
                 {
                     Log.d("++sskfile+++",fileName.reader().readText())
-                    val bufferedReader = BufferedReader(FileReader(file.absolutePath))
+                    val bufferedReader = BufferedReader(FileReader(file.absoluteFile))
                     var read: String?
                     val builder = StringBuilder("")
 
@@ -642,7 +747,7 @@ class Main2Activity : AppCompatActivity() {
                 if (fileName.contains(".sc"))
                 {
                     Log.d("++scfile+++",fileName.reader().readText())
-                    val bufferedReader = BufferedReader(FileReader(file.absolutePath))
+                    val bufferedReader = BufferedReader(FileReader(file.absoluteFile))
                     var read: String?
                     val builder = StringBuilder("")
 
@@ -857,16 +962,6 @@ class Main2Activity : AppCompatActivity() {
                                     val newStringImage = imageValue.toString().substring(indexValue+1)
                                     Log.d("+++ newStringImage +++","Yes "+imageValue.toString().substring(indexValue+1))
 
-                                    if (newStringImage.equals("01コマ目_01.png"))
-                                    {
-                                        imageView.setImageResource(R.drawable.one)
-                                        findViewById<ConstraintLayout>(R.id.constraintLayout).addView(imageView)
-                                        mapValueImages.remove(dataJson.key)
-                                        yourMethod()
-
-                                    }
-                                    else {
-
                                         for (imageValue in bitmapHashMap) {
                                             if (imageValue.key.contains(newStringImage)) {
                                                 Log.d(
@@ -896,7 +991,7 @@ class Main2Activity : AppCompatActivity() {
 //                                            yourMethod()
 //                                        }
                                         }
-                                    }
+
 
 //                                    imageView.setImageBitmap(bitmapsArray.get(bitmapsArray.size-1))
 //                                    findViewById<ConstraintLayout>(R.id.constraintLayout).addView(imageView)
@@ -919,10 +1014,140 @@ class Main2Activity : AppCompatActivity() {
 
             }
         }
+    }
+
+    fun unzipp(_zipFile: String, _location: String) {
+        try {
+            val fin = FileInputStream(_zipFile)
+            val zin = ZipInputStream(fin)
+            var ze: ZipEntry? = null
+            while (zin.nextEntry.also { ze = it } != null) {
+                Log.v("Decompress", "Unzipping " + ze!!.name)
+                if (ze!!.isDirectory) {
+                    val f = File(_location + ze!!.name)
+                    if (!f.isDirectory) {
+                        f.mkdirs()
+                    }
+                } else {
+                    val fout =
+                        FileOutputStream(_location + ze!!.name)
+                    var c = zin.read()
+                    while (c != -1) {
+                        fout.write(c)
+                        c = zin.read()
+                    }
+                    zin.closeEntry()
+                    fout.close()
+                }
+                var fileName = ze!!.name
+                Log.d("+++fileName+++", fileName)
+
+                fileName = fileName.substring(fileName.indexOf("/") + 1)
+                val file = File(_location, fileName)
+
+
+                if (fileName.contains(".png")) {
+
+                    val myBitmap = BitmapFactory.decodeStream(zin)
+                    bitmapsArray.add(myBitmap)
+                    bitmapHashMap.put(fileName,myBitmap)
+
+                    var b = drawMultipleBitmapsOnImageView(myBitmap)
+                    //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+                    //var frame : Drawable = BitmapDrawable(myBitmap)
+                    //animationDrawable.addFrame(frame,250)
+                    //findViewById<ImageView>(R.id.imageView).setImageBitmap(myBitmap)
+                    //FileHelper.ImageViewAnimatedChange(this,findViewById<ImageView>(R.id.imageView),myBitmap)
+                }
+
+                if (fileName.contains(".mp3") || fileName.contains(".ogg"))
+                {
+                    Log.d("+++fileName mp3+++", ""+SDPath1+"/STK.zip/"+fileName)
+                    Log.d("+++fileName mp3+++", file.absolutePath)
+                    fileNameString.add(file.absolutePath)
+                    Log.d("+++ fileNameString +++", fileNameString.size.toString())
+//                    val player = MediaPlayer()
+//
+//                    try {
+//                        player.setDataSource(file.absolutePath)
+//                        player.prepare()
+//                    } catch (e: IllegalArgumentException) {
+//                        Log.d("+++fileName mp3+++", e.toString())
+//                        e.printStackTrace()
+//                    } catch (e: java.lang.Exception) {
+//                        println("Exception of type : $e")
+//                        Log.d("+++fileName mp3+++", e.toString())
+//                        e.printStackTrace()
+//                    }
+////
+//                    player.start()
+//                    val expansionFile = ZipResourceFile("myZipFile.zip")
+//                    val assetFileDescriptor: AssetFileDescriptor =
+//                        expansionFile.getAssetFileDescriptor("myMusic.mp3")
+//                    try {
+//                        mediaPlayer.setDataSource(assetFileDescriptor.fileDescriptor)
+//                        mediaPlayer.prepare()
+//                        mediaPlayer.start()
+//                    } catch (e: IOException) {
+//                        // Handle exception
+//                    }
+                }
+
+                if (fileName.contains(".ssk"))
+                {
+                    Log.d("++sskfile+++",fileName.reader().readText())
+                    val bufferedReader = BufferedReader(FileReader(file))
+                    var read: String?
+                    val builder = StringBuilder("")
+
+                    while (bufferedReader.readLine().also { read = it } != null) {
+                        builder.append(read)
+                    }
+                    Log.d("++sskfile+++", builder.toString())
+                    ssk = builder.toString()
+                    //Toast.makeText(this,builder.toString(),Toast.LENGTH_SHORT).show()
+                    bufferedReader.close()
+                }
+
+                if (fileName.contains(".sc"))
+                {
+                    Log.d("++scfile+++",fileName.reader().readText())
+                    val bufferedReader = BufferedReader(FileReader(file))
+                    var read: String?
+                    val builder = StringBuilder("")
+
+                    while (bufferedReader.readLine().also { read = it } != null) {
+                        builder.append(read)
+                    }
+                    Log.d("++scfile+++", builder.toString())
+                    sc = builder.toString()
+                    //Toast.makeText(this,builder.toString(),Toast.LENGTH_SHORT).show()
+                    bufferedReader.close()
+                }
 
 
 
+                Log.d("+++bitmapsArray+++", bitmapsArray.size.toString())
+            }
+            zin.close()
+        } catch (e: java.lang.Exception) {
+            Log.e("Decompress", "unzip", e)
+        }
+    }
 
+    @Throws(IOException::class)
+    fun copy(src: File?, dst: File?) {
+        val `in`: InputStream = FileInputStream(src)
+        val out: OutputStream = FileOutputStream(dst)
+
+        // Transfer bytes from in to out
+        val buf = ByteArray(1024)
+        var len: Int
+        while (`in`.read(buf).also { len = it } > 0) {
+            out.write(buf, 0, len)
+        }
+        `in`.close()
+        out.close()
     }
 
 
